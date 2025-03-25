@@ -23,7 +23,6 @@ from solana.rpc.async_api import AsyncClient
 from solana.rpc.api import Client
 from solana.rpc.commitment import Processed
 from solana.rpc.types import TxOpts
-from solana.transaction import Transaction
 from py_modules.python_modules.iface import latency_check
 from spl.token.instructions import get_associated_token_address
 from jupiter_python_sdk.jupiter import Jupiter, Jupiter_DCA
@@ -1960,38 +1959,9 @@ class Main_CLI():
                     "Yes",
                     "No",
                 ]).execute_async()
-                
                 if confirm_make_donation == "Yes":
-                    config_data = await Config_CLI.get_config_data()
-                    client = AsyncClient(endpoint=config_data['RPC_URL'])
-                    
-                    wallet_id, wallet_private_key = await Wallets_CLI.prompt_select_wallet()
-                    wallet = Wallet(rpc_url=config_data['RPC_URL'], private_key=wallet_private_key)
-                
-                    get_wallet_sol_balance =  await client.get_balance(pubkey=wallet.wallet.pubkey())
-                    sol_price = f.get_crypto_price("SOL")
-                    sol_balance = round(get_wallet_sol_balance.value / 10 ** 9, 4)
-                    sol_balance_usd = round(sol_balance * sol_price, 2) - 0.05
-
-                    amount_usd_to_donate = await inquirer.number(message="Enter amount $ to donate:", float_allowed=True, max_allowed=sol_balance_usd).execute_async()
-
-                    prompt_donation_choice = await inquirer.select(message="Confirm donation?", choices=["Yes", "No"]).execute_async()
-                    if prompt_donation_choice == "Yes":
-                        transfer_IX = transfer(TransferParams(
-                            from_pubkey=wallet.wallet.pubkey(),
-                            to_pubkey=Pubkey.from_string("DVMjw3nWZHfmmnnHdhFnNvNBHWvkKS9rqNctRQUEPBsr"),
-                            lamports=int(float(amount_usd_to_donate) / sol_price * 10 ** 9)
-                        ))
-                        transaction = Transaction().add(transfer_IX)
-                        transaction.sign(wallet.wallet)
-                        try:
-                            await client.send_transaction(transaction, wallet.wallet, opts=TxOpts(skip_preflight=True, preflight_commitment=Processed))
-                            print(f"{c.GREEN}Thanks a lot for your donation{c.RESET}")
-                        except:
-                            print(f"{c.RED}Failed to send the donation.{c.RESET}")
-                        
-                        await inquirer.text(message="\nPress ENTER to continue").execute_async()
-                    
+                    print(f"{c.RED}Donation functionality paused for now.{c.RESET}")
+                    await inquirer.text(message="\nPress ENTER to continue").execute_async()
                 await Main_CLI.main_menu()
                 return
             case "Exit CLI":
